@@ -49,6 +49,14 @@ def get_user_by_id(id: int, skip_nulls=True):
     cursor.close()
     return user
 
+# get user's email by id
+def get_field_by_id(id: int, field_name: str):
+    cursor = get_db_connection().cursor()
+    cursor.execute(f'SELECT {field_name} FROM {db_table_name} WHERE id = {id}')
+    result = cursor.fetchone()
+    cursor.close()
+    return result
+
 # define custom json encoder 
 # (this is required to prevent the jsonify from automatically
 # converting the date objects to a datetime strings)
@@ -72,7 +80,15 @@ def get_user(id: int):
         return jsonify(user), 200
     else:
         return jsonify(Errors.user_not_found(id)), 404
-    
+
+@app.route('/user/email/<int:id>', methods=['GET'])
+def get_email(id: int):
+    val = get_field_by_id(id, 'email')
+    if val:
+        return jsonify(val), 200
+    else:
+        return jsonify(Errors.user_not_found(id)), 404
+
 # run the app
 if __name__ == '__main__':
     app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
