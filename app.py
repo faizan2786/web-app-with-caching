@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask.json.provider import DefaultJSONProvider
 import datetime
 
-from db import DBHelper
+from db import DBConnector
 
 # define custom json encoder 
 # (this is required to prevent the jsonify from automatically
@@ -22,7 +22,7 @@ app = Flask(__name__) # take the name of the app from the module name i.e. app.p
 
 @app.route('/user/<int:id>', methods=['GET'])
 def get_user(id: int):
-    user = DBHelper().get_user_by_id(id)
+    user = DBConnector().get_user_by_id(id)
     if user:
         return jsonify(user), 200
     else:
@@ -30,7 +30,7 @@ def get_user(id: int):
 
 @app.route('/user/email/<int:id>', methods=['GET'])
 def get_email(id: int):
-    val = DBHelper().get_field_by_id(id, 'email')
+    val = DBConnector().get_field_by_id(id, 'email')
     if val:
         return jsonify(val), 200
     else:
