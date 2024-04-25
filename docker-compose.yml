@@ -4,11 +4,11 @@ services:
     build: .
     image: user-api
     container_name: user-api-app
-    command: flask --app src/app.py --debug run # this will replace the default CMD in the Dockerfile
+    command: flask --app src/app.py --debug run --host 0.0.0.0 #[ this will replace CMD command in the Dockerfile ]
     ports:
       - 5001:5000
     volumes:
-      - .:/app # map the local directory to the container directory (for live code reloading)
+      - ./src:/app/src # map the local directory to the container directory (for live code reloading) [NOTE: this replaces any COPY command in the Dockerfile]
     depends_on:
       - postgres # this will wait for the serviceName to be up before starting this service
     networks:
@@ -30,6 +30,7 @@ services:
 # Define the network
 networks:
   my-network:
+    name: user-api-network
     driver: bridge
  
 

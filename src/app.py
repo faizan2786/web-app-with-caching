@@ -39,4 +39,4 @@ def get_email(id: int):
 
 # run the app
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=False) # overwrite the host and debug mode with `flask --debug run --host=0.0.0.0 port=5000` command (i.e. to run in a container with auto reload)
