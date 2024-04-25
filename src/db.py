@@ -1,7 +1,10 @@
 # helper class for database methods
 
 import psycopg2 # postgres SQL api
+import redis # redis api
 import os
+
+import redis.connection
 
 class SingletonClass(type):
     _instances = {} # dict of class type to it singleton instance
@@ -10,6 +13,7 @@ class SingletonClass(type):
             self._instances[self] = super().__call__()
         return self._instances[self]
 
+# Singleton connector to the DB
 class DBConnector(metaclass = SingletonClass): # derive from the Singleton type class
     def __init__(self) -> None:       
         # Database configuration
@@ -53,8 +57,28 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
 
     # get user's email by id
     def get_field_by_id(self, id: int, field_name: str):
+
+        # retrieve the field value from the redis cache (i.e. key = user_email:id, value = email of the user with id)
+        key = f"user_{field_name}:{id}"
+        value = RedisConnector().connection.get(key)
+        if value:
+            return value
+
+        # get the data from the db
         cursor = self.connection.cursor()
         cursor.execute(f'SELECT {field_name} FROM Users WHERE id = {id}')
-        result = cursor.fetchone()
+        value = cursor.fetchone()
         cursor.close()
-        return result
+
+        # store the email in cache for future reference
+        RedisConnector().connection.set(key, value[0])
+        return value
+
+
+# Singleton connector to Redis server
+class RedisConnector(metaclass = SingletonClass):
+    def __init__(self):
+        self.host = "redis-stack"
+        self.port = 6379
+        # connect to redis
+        self.connection = redis.Redis(self.host, self.port, decode_responses=True)
