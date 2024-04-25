@@ -19,6 +19,7 @@ class Errors():
         return {"Error": "404", "Message": f'No User found with id {id}'}
 
 app = Flask(__name__) # take the name of the app from the module name i.e. app.py
+app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
 
 @app.route('/user/<int:id>', methods=['GET'])
 def get_user(id: int):
@@ -38,5 +39,4 @@ def get_email(id: int):
 
 # run the app
 if __name__ == '__main__':
-    app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
     app.run(debug=False)

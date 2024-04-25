@@ -13,9 +13,9 @@ class SingletonClass(type):
 class DBConnector(metaclass = SingletonClass): # derive from the Singleton type class
     def __init__(self) -> None:       
         # Database configuration
-        self.db_host = "postgres" # server's name
+        self.db_host = "user-api-db" # db server's name (i.e. container name)
         self.db_port = "5432"  # Default PostgreSQL port
-        self.db_name = "webapp_db"
+        self.db_name = "user_db"
         self.db_user = os.getenv("DB_USER")
         self.db_password = os.getenv("DB_PASSWORD")
 

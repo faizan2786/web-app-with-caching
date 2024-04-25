@@ -1,0 +1,40 @@
+services:
+  # service-1: web-app (this is our fast-api web-app)
+  web-app:
+    build: .
+    image: user-api
+    container_name: user-api-app
+    command: flask --app src/app.py --debug run # this will replace the default CMD in the Dockerfile
+    ports:
+      - 5001:5000
+    volumes:
+      - .:/app # map the local directory to the container directory (for live code reloading)
+    depends_on:
+      - postgres # this will wait for the serviceName to be up before starting this service
+    networks:
+      - my-network
+    
+  # service-2: db (this is our postgres database)
+  postgres:
+    image: postgres:16
+    container_name: user-api-db
+    environment:
+      POSTGRES_USER: fmpatel
+      POSTGRES_PASSWORD: dbpassword
+      POSTGRES_DB: user_db
+    ports:
+      - 5432:5432
+    networks:
+      - my-network
+
+# Define the network
+networks:
+  my-network:
+    driver: bridge
+ 
+
+#  Now, we can run the following command to start the services: 
+#  docker-compose up
+ 
+#  This will start the services defined in the  docker-compose.yml  file. 
+#  Now, we can access the web-app at  http://localhost:5001  and the database at  http://localhost:5432
