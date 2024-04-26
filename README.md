@@ -1,4 +1,4 @@
-# Web Application with Caching and deployed using Docker
+# Web Application with Caching - deployed using Docker
 
 This project is a basic web application written in python using `Flask`. It uses `Postgres` as it persistent storage layer and  uses `Redis` as it **caching** layer. The application and all of its related components (i.e. postgres and redis instance) are deployed using `Docker Compose`.
 
