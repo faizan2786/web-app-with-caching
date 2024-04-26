@@ -16,7 +16,7 @@ class SingletonClass(type):
 # Singleton connector to Redis server
 class RedisConnector(metaclass = SingletonClass):
     def __init__(self):
-        self.host = "redis"
+        self.host = "user-api-redis"
         self.port = 6379
         # connect to redis
         self.connection = redis.Redis(self.host, self.port, decode_responses=True)  # redis connection instance
