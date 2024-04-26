@@ -15,27 +15,40 @@ class CustomJSONEncoder(DefaultJSONProvider):
 
 class Errors():
     @staticmethod
-    def user_not_found(id: int):
-        return {"Error": "404", "Message": f'No User found with id {id}'}
+    def user_not_found(uname: str):
+        return {"Error": "404", "Message": f'No User found with username \'{uname}\''}
+    
+    @staticmethod
+    def email_not_found(email: str):
+        return {"Error": "404", "Message": f'Email \'{email}\' doesn\'t exist'}
 
 app = Flask(__name__) # take the name of the app from the module name i.e. app.py
 app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
 
-@app.route('/user/<int:id>', methods=['GET'])
-def get_user(id: int):
-    user = DBConnector().get_user_by_id(id)
+@app.route('/user/<uname>', methods=['GET'])
+def get_user(uname: str):
+    user = DBConnector().get_user_by_username(uname)
     if user:
         return jsonify(user), 200
     else:
-        return jsonify(Errors.user_not_found(id)), 404
+        return jsonify(Errors.user_not_found(uname)), 404
 
-@app.route('/user/email/<int:id>', methods=['GET'])
-def get_email(id: int):
-    val = DBConnector().get_field_by_id(id, 'email')
+@app.route('/user/email/<uname>', methods=['GET'])
+def get_email(uname: str):
+    val = DBConnector().get_field_by_username(uname, 'email')
     if val:
         return jsonify(val), 200
     else:
-        return jsonify(Errors.user_not_found(id)), 404
+        return jsonify(Errors.user_not_found(uname)), 404
+
+@app.route('/user/username/<email>', methods=['GET'])
+def get_username_by_email(email: str) -> str:
+    uname = DBConnector().get_username_by_email(email)
+    if uname:
+        return jsonify(uname), 200
+    else:
+        return jsonify(Errors.email_not_found(email)), 404
+
 
 # run the app
 if __name__ == '__main__':

@@ -13,6 +13,14 @@ class SingletonClass(type):
             self._instances[self] = super().__call__()
         return self._instances[self]
 
+# Singleton connector to Redis server
+class RedisConnector(metaclass = SingletonClass):
+    def __init__(self):
+        self.host = "redis"
+        self.port = 6379
+        # connect to redis
+        self.connection = redis.Redis(self.host, self.port, decode_responses=True)  # redis connection instance
+
 # Singleton connector to the DB
 class DBConnector(metaclass = SingletonClass): # derive from the Singleton type class
     def __init__(self) -> None:       
@@ -37,10 +45,10 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
         )
 
     # get user by its id from the Postgres database
-    def get_user_by_id(self, id: int, skip_nulls=True):
+    def get_user_by_username(self, uname: str, skip_nulls=True):
         # Query data from PostgreSQL
         cursor = self.connection.cursor()
-        cursor.execute(f'SELECT * FROM Users WHERE id = {id};')
+        cursor.execute(f'SELECT * FROM Users WHERE username = \'{uname}\';')
         result = cursor.fetchone()
 
         if not result:
@@ -55,30 +63,34 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
         cursor.close()
         return user
 
-    # get user's email by id
-    def get_field_by_id(self, id: int, field_name: str):
-
-        # retrieve the field value from the redis cache (i.e. key = user_email:id, value = email of the user with id)
-        key = f"user_{field_name}:{id}"
-        value = RedisConnector().connection.get(key)
-        if value:
-            return value
-
+    # get any user field by id
+    def get_field_by_username(self, uname: str, field_name: str):
         # get the data from the db
         cursor = self.connection.cursor()
-        cursor.execute(f'SELECT {field_name} FROM Users WHERE id = {id}')
+        cursor.execute(f'SELECT {field_name} FROM Users WHERE username = \'{uname}\'')
         value = cursor.fetchone()
         cursor.close()
-
-        # store the email in cache for future reference
-        RedisConnector().connection.set(key, value[0])
         return value
 
+    # get user's username by their email
+    # (can be used to support login by user's emails)
+    def get_username_by_email(self, email: str) -> str:
+        
+        # first, retrieve the username from the redis cache 
+        # (i.e. key = username:<email>, value = user_name of the user with given email)
+        key = f"user_name:{email}"
+        uname = RedisConnector().connection.get(key)
+        if uname:
+            return uname
 
-# Singleton connector to Redis server
-class RedisConnector(metaclass = SingletonClass):
-    def __init__(self):
-        self.host = "redis-stack"
-        self.port = 6379
-        # connect to redis
-        self.connection = redis.Redis(self.host, self.port, decode_responses=True)
+        # get the data from db
+        cursor = self.connection.cursor()
+        cursor.execute(f'SELECT username FROM Users WHERE email = \'{email}\'')
+        uname = cursor.fetchone()
+        cursor.close()
+
+        # save the mapping to the cache if valid value is retrieved
+        if uname:
+            RedisConnector().connection.set(key, uname[0])
+
+        return uname
