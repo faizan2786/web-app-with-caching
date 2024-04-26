@@ -25,6 +25,10 @@ class Errors():
 app = Flask(__name__) # take the name of the app from the module name i.e. app.py
 app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
 
+@app.route('/')
+def home():
+    return "<h2>Welcome to the User API Web-Application!</h2>"
+
 @app.route('/user/<uname>', methods=['GET'])
 def get_user(uname: str):
     user = DBConnector().get_user_by_username(uname)

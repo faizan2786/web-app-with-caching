@@ -4,7 +4,7 @@ services:
     build: .
     image: user-api
     container_name: user-api-app
-    command: flask --app src/app.py --debug run --host 0.0.0.0 #[ this will replace CMD command in the Dockerfile ]
+    command: flask --app src/app.py run --host 0.0.0.0 #[ this will replace CMD command in the Dockerfile ]
     ports:
       - 5001:5000
     volumes:
@@ -20,7 +20,7 @@ services:
     image: postgres:16
     container_name: user-api-db
     environment:
-      POSTGRES_USER: fmpatel
+      POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: dbpassword
       POSTGRES_DB: user_db
     ports:

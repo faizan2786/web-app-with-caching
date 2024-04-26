@@ -1,3 +1,4 @@
+username,name,email,dob,password_hash
 jdoe,John Doe,jd123@corporate.com,,
 bsmith,Black Smith,bsmith123@corporate.com,1984-07-13,
 fpatel,Faizan Patel,fmp234@corporate.com,1993-07-10,
