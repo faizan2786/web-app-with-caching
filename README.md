@@ -41,17 +41,17 @@ Follow these steps to install and run the project using Docker Compose:
 5. Load the User data in db container:
     - Copy the `users.csv` file to the db container using the following command:
         ```bash
-        docker cp users.csv user-api-db:/
+        docker cp user_data.csv user-api-db:/
     - Open a new terminal window and navigate to the project directory.
     - Run the following command to login to the db container and connect to the Postgres database:
         ```bash
-        docker exec -it user-api-db psql -U <postgres_username> user_db
+        docker exec -it user-api-db psql -U postgres_user user_db
     - Now create a table in the database using command given in the `USERS_TABLE.sql` file:
         ```sql
-        CREATE TABLE Users (username varchar(10) PRIMARY KEY, name varchar(30) NOT NULL, email varchar(30) UNIQUE, dob date, passwordhash varchar);
+        CREATE TABLE Users (username varchar(20) PRIMARY KEY, name varchar(30) NOT NULL, email varchar(30) UNIQUE, dob date, passwordhash varchar);
     - Now import the data from the `users.csv` file to the `Users` table using following command:
         ```sql
-        COPY Users FROM '/users.csv' DELIMITER ',' CSV HEADER;
+        COPY Users FROM '/user_data.csv' DELIMITER ',' CSV HEADER;
 ## Usage
 
 Once the containers are up and running and data is loaded to the DB, you can access the web application by visiting `http://localhost:5001` in your web browser. The application will display a greeting message saying `Welcome to the User API Web-Application!`.
