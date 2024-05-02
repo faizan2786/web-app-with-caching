@@ -14,9 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # and just re-execute the actions from this step forward)
 COPY ./src ./src/
 
-# set the require env variables
-ENV DB_USER=postgres_user
-ENV DB_PASSWORD=dbpassword
-
 # finally, run the flask app
 CMD ["python", "src/app.py"]

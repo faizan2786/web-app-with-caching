@@ -3,6 +3,8 @@ services:
   web-app:
     build: .
     image: user-api
+    env_file:
+      - .env # set all the environment variables from the .env file to the container
     container_name: user-api-app
     command: flask --app src/app.py run --host 0.0.0.0 #[ this will replace CMD command in the Dockerfile ]
     ports:
@@ -20,8 +22,8 @@ services:
     image: postgres:16
     container_name: user-api-db
     environment:
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: dbpassword
+      POSTGRES_USER: ${DB_USER} # load DB_USER env variable from .env file
+      POSTGRES_PASSWORD: ${DB_PASSWORD} # load DB_PASSWORD env variable from .env file
       POSTGRES_DB: user_db
     ports:
       - 5432:5432
