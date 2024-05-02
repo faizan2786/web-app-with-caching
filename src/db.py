@@ -1,6 +1,6 @@
 # helper class for database methods
 
-import psycopg2 # postgres SQL api
+import psycopg # postgres SQL api
 import redis # redis api
 import os
 
@@ -36,7 +36,7 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
             raise RuntimeError("DB user and/or password not set by environment variables.")
 
         # Connect to PostgreSQL
-        self.connection = psycopg2.connect(
+        self.connection = psycopg.connect(
             host = self.db_host,
             port = self.db_port,
             dbname = self.db_name,
@@ -47,8 +47,7 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
     # get user by its id from the Postgres database
     def get_user_by_username(self, uname: str, skip_nulls=True):
         # Query data from PostgreSQL
-        cursor = self.connection.cursor()
-        cursor.execute(f'SELECT * FROM Users WHERE username = \'{uname}\';')
+        cursor = self.connection.execute(f'SELECT * FROM Users WHERE username = \'{uname}\';')
         result = cursor.fetchone()
 
         if not result:
@@ -84,8 +83,7 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
             return uname
 
         # get the data from db
-        cursor = self.connection.cursor()
-        cursor.execute(f'SELECT username FROM Users WHERE email = \'{email}\'')
+        cursor = self.connection.execute(f'SELECT username FROM Users WHERE email = \'{email}\'')
         uname = cursor.fetchone()
         cursor.close()
 
