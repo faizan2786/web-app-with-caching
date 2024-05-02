@@ -1,0 +1,10 @@
+# config for database connection
+db:
+  host_name: user-api-db # db service name (i.e. container name)
+  port: 5432
+  db_name: user_db
+
+# config for redis server connection
+redis:
+  host_name: user-api-redis
+  port: 6379

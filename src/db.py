@@ -2,9 +2,18 @@
 
 import psycopg # postgres SQL api
 import redis # redis api
-import os
 
-import redis.connection
+import os
+from yaml import load, Loader
+
+# load config from the yaml file
+def get_db_config():
+    with open("config.yaml", "r") as f:
+        return load(f, Loader=Loader)['db']
+
+def get_redis_config():
+    with open("config.yaml", "r") as f:
+        return load(f, Loader=Loader)['redis']
 
 class SingletonClass(type):
     _instances = {} # dict of class type to it singleton instance
@@ -16,8 +25,9 @@ class SingletonClass(type):
 # Singleton connector to Redis server
 class RedisConnector(metaclass = SingletonClass):
     def __init__(self):
-        self.host = "user-api-redis"
-        self.port = 6379
+        redis_config = get_redis_config()
+        self.host = redis_config['host_name']
+        self.port = redis_config['port']
         # connect to redis
         self.connection = redis.Redis(self.host, self.port, decode_responses=True)  # redis connection instance
 
@@ -25,9 +35,11 @@ class RedisConnector(metaclass = SingletonClass):
 class DBConnector(metaclass = SingletonClass): # derive from the Singleton type class
     def __init__(self) -> None:       
         # Database configuration
-        self.db_host = "user-api-db" # db server's name (i.e. container name)
-        self.db_port = "5432"  # Default PostgreSQL port
-        self.db_name = "user_db"
+        db_config = get_db_config()
+        self.db_host = db_config['host_name']
+        self.db_port = db_config['port']
+        self.db_name = db_config['db_name']
+
         self.db_user = os.getenv("DB_USER")
         self.db_password = os.getenv("DB_PASSWORD")
 

@@ -2,8 +2,9 @@ FROM python:3.12
 
 WORKDIR /app
 
-# copy requirements file to the current directory (i.e. /app) in container
+# copy requirements file and config file to the current directory (i.e. /app) in container
 COPY ./src/requirements.txt ./
+COPY ./src/config.yaml ./
 
 # install the packages from requirements file (without caching the installation files)
 RUN pip install --no-cache-dir -r requirements.txt

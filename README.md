@@ -10,11 +10,16 @@ The purpose of this project is to mainly demonstrate following concept in modern
 ## Project Structure
 
 Here is a brief overview of the project's structure:
-- `src/`: This directory contains the main application code.
+- `src/`: This directory contains the main application code and related files.
+    - `app.py`: This file contains our web application written using Flask.
+    - `db.py`: This is a helper file to interact with the Postgres and Redis servers.
+    - `config.yaml`: The configuration settings for the app.
+  
 - `Dockerfile`: This file is used to build the Docker image for our web application.
 - `docker-compose.yml`: This file is used to define all the required services including our web-app and run them as **multi-container Docker applications**.
-- `users_table.psql`: This file contains the SQL command to create the Users table in the Postgres DB.
-- `users.csv`: This file contains the user data in CSV format, which can be loaded to the Users table.
+- `.env`: This file contains the environment variables required by the application.
+- `USERS_TABLE.psql`: This file contains the SQL command to create the Users table in the Postgres DB.
+- `user_data.csv`: This file contains 1M rows of random user data in CSV format, which can be loaded to the Users table.
 
 ## Installation
 
@@ -45,7 +50,7 @@ Follow these steps to install and run the project using Docker Compose:
     - Open a new terminal window and navigate to the project directory.
     - Run the following command to login to the db container and connect to the Postgres database:
         ```bash
-        docker exec -it user-api-db psql -U postgres_user user_db
+        docker exec -it user-api-db psql -U postgres user_db
     - Now create a table in the database using command given in the `USERS_TABLE.sql` file:
         ```sql
         CREATE TABLE Users (username varchar(20) PRIMARY KEY, name varchar(30) NOT NULL, email varchar(30) UNIQUE, dob date, passwordhash varchar);
