@@ -1,5 +1,6 @@
 # helper class for database methods
 
+from typing import Tuple
 import psycopg # postgres SQL api
 import redis # redis api
 
@@ -30,6 +31,15 @@ class RedisConnector(metaclass = SingletonClass):
         self.port = redis_config['port']
         # connect to redis
         self.connection = redis.Redis(self.host, self.port, decode_responses=True)  # redis connection instance
+
+    # update the key (NOT the value) in redis
+    def update_key_if_exist(self, key: str, new_key: str) -> bool:
+        if self.connection.exists(key):
+            val = self.connection.get(key) # get the value
+            self.connection.delete(key)  # delete current key
+            self.connection.set(new_key, val) # add value with new key
+            return True
+        return False
 
 # Singleton connector to the DB
 class DBConnector(metaclass = SingletonClass): # derive from the Singleton type class
@@ -98,9 +108,38 @@ class DBConnector(metaclass = SingletonClass): # derive from the Singleton type 
         cursor = self.connection.execute(f'SELECT username FROM Users WHERE email = \'{email}\'')
         uname = cursor.fetchone()
         cursor.close()
-
-        # save the mapping to the cache if valid value is retrieved
+        # save the info to the cache if valid value is retrieved
         if uname:
             RedisConnector().connection.set(key, uname[0])
-
         return uname
+    
+    # update user's email by its username
+    # (also updates the email in cache if it exists)
+    # returns the True if update is successful and the error message if failed.
+    def update_user_email(self, uname: str, email: str) -> Tuple[bool, str]:
+        uname = uname.lower()
+        email = email.lower()
+        current_email = self.get_field_by_username(uname, 'email')[0]
+
+        # return if provided email is same as current one
+        if current_email.lower() == email:
+            return (True, "OK")
+
+        # update the email in DB
+        cursor = self.connection.execute(f'UPDATE Users SET email = \'{email}\' WHERE username = \'{uname}\'')
+
+        if cursor.rowcount == 1: # if the update is successful
+            # commit the change
+            self.connection.commit()
+            cursor.close()
+
+            # update the cache for given email
+            current_key = f"user_name:{current_email}"
+            new_key = f"user_name:{email}"
+            RedisConnector().update_key_if_exist(current_key, new_key)
+            
+            return (True, "OK")
+        else:
+            self.connection.rollback()
+            cursor.close()
+            return (False, "Something went wrong while updating record in the DB!")

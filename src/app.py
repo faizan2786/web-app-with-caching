@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask.json.provider import DefaultJSONProvider
 import datetime
 
@@ -21,6 +21,11 @@ class Errors():
     @staticmethod
     def email_not_found(email: str):
         return {"Error": "404", "Message": f'Email \'{email}\' doesn\'t exist'}
+
+    @staticmethod
+    def invalid_request_body():
+        return {"Error": "400", "Message": "Invalid request body"}
+
 
 app = Flask(__name__) # take the name of the app from the module name i.e. app.py
 app.json = CustomJSONEncoder(app) # use custom json encode for handling dates correctly
@@ -52,6 +57,19 @@ def get_username_by_email(email: str) -> str:
         return jsonify(uname), 200
     else:
         return jsonify(Errors.email_not_found(email)), 404
+
+# create a PUT/POST request to update user's email
+@app.route('/user/email/<uname>', methods=['PUT', 'POST'])
+def update_email(uname: str):
+    email = request.json.get('email') # get 'email' field from request's body of type json
+    if email:
+        res, msg = DBConnector().update_user_email(uname, email)
+        if res:
+            return jsonify({"Success": f'Email for user \'{uname}\' updated successfully'}), 200
+        else:
+            return jsonify(msg), 500
+    else:
+        return jsonify(Errors.invalid_request_body()), 400
 
 
 # run the app
