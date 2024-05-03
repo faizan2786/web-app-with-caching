@@ -61,7 +61,13 @@ Follow these steps to install and run the project using Docker Compose:
 
 Once the containers are up and running and data is loaded to the DB, you can access the web application by visiting `http://localhost:5001` in your web browser. The application will display a greeting message saying `Welcome to the User API Web-Application!`.
 
-You may visit following** GET request routes** to interact with the application:
-- `/users/<user_name>`: This route will display the details of the user with the given `user_name`.
-- `/users/email/<user_name>`: This route will display the email of the user with the given `user_name`.
-- `/users/username/<email>`: This route will display the username of the user with the given `email`.
+List of request routes to interact with the application:
+
+1. GET requests:
+   - `/users/<user_name>` -> Returns the details of the user with the given `user_name`.
+   - `/users/email/<user_name>` -> Returns the email of the user with the given `user_name`.
+   - `/users/username/<email>` -> Returns the username of the user with the given `email`.
+
+2. POST/PUT requests:
+   - `/users/email/<user_name>` -> Updates the user's email address with value given in the request body. The request body should contain the new email address in JSON format i.e. `{"email": "new_email_address"}`.
+   **Note**: The implementation of this request also handles the **cache invalidation** for the updated email.
